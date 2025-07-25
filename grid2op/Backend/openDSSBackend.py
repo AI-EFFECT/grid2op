@@ -3,6 +3,7 @@
 
 import os  # load the python os default module
 
+from matplotlib.pyplot import disconnect
 import numpy as np
 from typing import Optional, Union, Tuple
 
@@ -102,6 +103,22 @@ class OpenDSSBackend(Backend):
         # Change the voltage value of generators (TODO discuss with Paulo)
         for gen_id, new_v in prod_v:
             self._grid.text(f"Edit Generator.{gen_id2name[gen_id]} kv={new_v}")
+
+        # Handle the connection/disconnection of lines/trafos
+        n_line_dss = self._lines_df.shape[0]
+        line_id2name = dict(zip(list(range(self.n_line), map(str.lower, self.name_line))))
+        # - on "or" side
+        lines_or_bus = backendAction.get_lines_or_bus()
+        for line_id, new_bus in lines_or_bus:
+            el_type = "Line" if line_id < n_line_dss else "Transformer"
+            enabled = "False" if new_bus == -1 else True
+            self._grid.text(f"Edit {el_type}.{line_id2name[line_id]} enabled={enabled}")
+        # - on "ex" side
+        lines_ex_bus = backendAction.get_lines_ex_bus()
+        for line_id, new_bus in lines_ex_bus:
+            el_type = "Line" if line_id < n_line_dss else "Transformer"
+            enabled = "False" if new_bus == -1 else True
+            self._grid.text(f"Edit {el_type}.{line_id2name[line_id]} enabled={enabled}")
 
     def runpf(self, is_dc: dt_bool = False) -> Tuple[dt_bool, Union[Exception, None]]:
 
