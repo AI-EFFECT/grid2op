@@ -106,7 +106,7 @@ class OpenDSSBackend(Backend):
 
         # Handle the connection/disconnection of lines/trafos
         n_line_dss = self._lines_df.shape[0]
-        line_id2name = dict(zip(list(range(self.n_line), map(str.lower, self.name_line))))
+        line_id2name = dict(zip(range(self.n_line), list(map(str.lower, self.name_line))))
         # - on "or" side
         lines_or_bus = backendAction.get_lines_or_bus()
         for line_id, new_bus in lines_or_bus:
